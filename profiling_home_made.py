@@ -1,14 +1,14 @@
 from functools import wraps
+from pathlib import Path
 from time import perf_counter
+from typing import Optional
+
 from pyspark.sql import SparkSession, DataFrame
 from utilities import sum_field
 import inspect
 
 
-# The timer is ready to receive parameters if they are needed.
-# Simply add them.
-# That is why it is used with parentheses, @timer(), instead of timer, without parentheses.
-def timer():
+def timer(message: Optional[str] = None):
     def _outer(fn):
         @wraps(fn)
         def _inner(*args, **kwargs):
@@ -16,7 +16,10 @@ def timer():
             value = fn(*args, **kwargs)
             toc = perf_counter()
             elapsed_time = toc - tic
-            print(f"{fn.__module__}.{fn.__name__} at {inspect.getfile(fn)} took {elapsed_time:.6f} seconds")
+            # You can enrich this information with whatever you want
+            location = f"{fn.__module__}.{fn.__name__} at {Path(inspect.getfile(fn)).name}"
+            print(
+                f"{location}{', ' + message if message is not None else ''} took {elapsed_time:.6f} seconds")
             return value
 
         return _inner
@@ -48,7 +51,7 @@ def create_dataframe(spark: SparkSession) -> DataFrame:
     return spark.createDataFrame(data, schema)
 
 
-@timer()
+@timer("entry point")
 def main():
     spark = SparkSession.builder.getOrCreate()
     print(spark.version)
@@ -73,8 +76,7 @@ def show_non_truncated_dataframe(df):
 if __name__ == '__main__':
     main()
 
-# __main__.show_non_truncated_dataframe at profiling_hand_made.py took 3.752711 seconds
-# Code block took 3.752752 seconds
-# calculating_age took 2.917539 seconds
-# __main__.main at profiling_hand_made.py took 12.330486 seconds
-
+# __main__.show_non_truncated_dataframe at profiling_home_made.py took 3.550507 seconds
+# Code block took 3.550576 seconds
+# calculating_age took 2.831516 seconds
+# __main__.main at profiling_home_made.py, entry point took 11.914241 seconds

@@ -1,7 +1,7 @@
 # https://github.com/sumerc/yappi/tree/master
-import os
 import sys
 from pathlib import Path
+from types import ModuleType
 
 import yappi
 from pyspark.sql import SparkSession, DataFrame
@@ -33,6 +33,10 @@ def show_dataframe(df):
     df.show(truncate=False)
 
 
+def _is_own_module(m: ModuleType, base_path: str) -> bool:
+    return hasattr(m, "__file__") and m.__file__.startswith(base_path)
+
+
 if __name__ == '__main__':
     yappi.set_clock_type("wall")
     yappi.start()
@@ -41,10 +45,15 @@ if __name__ == '__main__':
 
     yappi.stop()
 
-    current_module = sys.modules[__name__]
-    sum_field_module = sys.modules[sum_field.__module__]
+    # current_module = sys.modules[__name__]
+    # sum_field_module = sys.modules[sum_field.__module__]
+    # modules = [current_module, sum_field_module]
+
+    parent_path = str(Path(__file__).parent)
+    modules = [m for m in sys.modules.values() if hasattr(m, "__file__") and m.__file__.startswith(parent_path)]
+
     stats = yappi.get_func_stats(
-        filter_callback=lambda stat: yappi.module_matches(stat, [current_module, sum_field_module]))
+        filter_callback=lambda stat: yappi.module_matches(stat, modules))
     sorted_stats = stats.sort("ttot", "desc")
     path = Path(__file__).with_suffix(".txt")
     # https://github.com/sumerc/yappi/blob/master/doc/api.md#savepath-typeystat
@@ -59,7 +68,7 @@ if __name__ == '__main__':
 # Ordered by: ttot, desc
 #
 # name                                  ncall  tsub      ttot      tavg
-# ..cts\SparkProfiling\main.py:18 main  1      0.000036  12.32839  12.32839
-# ..rofiling\main.py:28 show_dataframe  1      0.000006  3.603755  3.603755
-# ..ing\main.py:32 calculate_total_age  1      0.000028  3.138661  3.138661
-# ..ofiling\main.py:8 create_dataframe  1      0.000009  2.197639  2.197639
+# ..ng\profiling_with_yappi.py:22 main  1      0.000061  14.31176  14.31176
+# ..ng_with_yappi.py:32 show_dataframe  1      0.000006  4.266180  4.266180
+# ..Profiling\utilities.py:4 sum_field  1      0.000024  3.435901  3.435901
+# .._with_yappi.py:12 create_dataframe  1      0.000011  2.633379  2.633379

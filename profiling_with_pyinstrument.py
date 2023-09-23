@@ -33,7 +33,6 @@ if __name__ == '__main__':
 
 # pyinstrument --color .\profiling_with_pyinstrument.py
 
-
 # 12.819 <module>  profiling_with_pyinstrument.py:1
 # └─ 12.734 main  profiling_with_pyinstrument.py:16
 #    ├─ 3.976 show_dataframe  profiling_with_pyinstrument.py:26
