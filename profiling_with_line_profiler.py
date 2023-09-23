@@ -44,7 +44,6 @@ if __name__ == '__main__':
 
 # $env:PYSPARK_PYTHON="python"
 # kernprof -lv .\profiling_with_line_profiler.py
-# kernprof -lv .\profiling_with_line_profiler.py
 
 # Wrote profile results to profiling_with_line_profiler.py.lprof
 # Timer unit: 1e-06 s
