@@ -33,10 +33,6 @@ def show_dataframe(df):
     df.show(truncate=False)
 
 
-def _is_own_module(m: ModuleType, base_path: str) -> bool:
-    return hasattr(m, "__file__") and m.__file__.startswith(base_path)
-
-
 if __name__ == '__main__':
     yappi.set_clock_type("wall")
     yappi.start()
